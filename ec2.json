@@ -1,0 +1,110 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template is for creating EC2 Instance",
+    "Parameters": {
+        "CidrBlock": {
+            "Description": "This is cidr_block parameter",
+            "Type": "String",
+            "Default": "10.10.0.0/16"
+        },
+        "AZs1": {
+            "Description": "This is the parameter for Avaliability Zone1",
+            "Type": "AWS::EC2::AvailabilityZone::Name"
+        },
+        "AZs2": {
+            "Description": "This is the parameter for Avaliability Zone2",
+            "Type": "AWS::EC2::AvailabilityZone::Name"
+        },
+        "SubnetCidr": {
+            "Description": "This is subnet cidr parameter",
+            "Type": "CommaDelimitedList",
+            "Default": "10.10.0.0/24,10.10.1.0/24"
+        }
+    },
+    "Resources": {
+        "CfVpc": {
+            "Description": "This is CloudFormation VPC",
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "CidrBlock"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Cf_Vpc"
+                    }
+                ]
+            }
+        },
+        "subnet1": {
+            "Description": "This is CloudFormation template for subnet1",
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AZs1"
+                },
+                "CidrBlock": {
+                    "Fn::Select": [
+                        0,
+                        {
+                            "Ref": "SubnetCidr"
+                        }
+                    ]
+                },
+                "VpcId": {
+                    "Ref": "CfVpc"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Cf_Subnet1"
+                    }
+                ]
+            }
+        },
+        "subnet2": {
+            "Description": "This is CloudFormation template for subnet2",
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AZs2"
+                },
+                "CidrBlock": {
+                    "Fn::Select": [
+                        1,
+                        {
+                            "Ref": "SubnetCidr"
+                        }
+                    ]
+                },
+                "VpcId": {
+                    "Ref": "CfVpc"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Cf_Subnet2"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "VpcId": {
+            "Value": {
+                "Ref": "CfVpc"
+            }
+        },
+        "Subnet1Id": {
+            "Value": {
+                "Ref": "subnet1"
+            }
+        },
+        "Subnet2Id": {
+            "Value": {
+                "Ref": "subnet2"
+            }
+        }
+    }
+}
